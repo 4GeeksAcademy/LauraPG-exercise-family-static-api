@@ -8,8 +8,9 @@ from utils import APIException, generate_sitemap
 from datastructures import FamilyStructure
 #from models import Person
 
+
 app = Flask(__name__)
-app.url_map.strict_slashes = False
+app.url_map.strict_slashes = False #con esto no hace falta el último / de las endpoint
 CORS(app)
 
 # create the jackson family object
@@ -21,6 +22,7 @@ def handle_invalid_usage(error):
     return jsonify(error.to_dict()), error.status_code
 
 # generate sitemap with all your endpoints
+#esto es para trabajar en modo desarrollo y poder visualizar lo que estoy haciendo
 @app.route('/')
 def sitemap():
     return generate_sitemap(app)
@@ -36,11 +38,19 @@ def handle_hello():
     }
     return jsonify(response_body), 200
 
+#con los endpoint es lo que le decimos y queremos que  nos muestre
+#en este ejemplo "no mostramos datos, solo el mensaje de error o buena respuesta"
 @app.route('/member', methods=['POST'])
 def add_member():
-    new_member = request.json
+    #el request.json es la respuesta qeu recibimos de lo que nosotros enviamos al body y le damos
+    #esa respuesta un nombre de variable que se llama new_member 
+    #request es el objeto que contiene toda la información de la solicitud, y request.json se usa para obtener los datos JSON del cuerpo de la solicitud.
+
+    new_member = request.json 
     member = jackson_family.add_member(new_member)
     if(member):
+        #Con jsonify enviamos una respuesta desde el servidor
+        #Es una función de Flask que se usa para crear una respuesta HTTP que contiene datos JSON.
         return jsonify({'msg':'adding new member to family'}),200
     return jsonify({'error':'error adding member'}),400
 
@@ -49,7 +59,7 @@ def add_member():
 def get_member(member_id):
     member = jackson_family.get_member(member_id)
     if (member):
-        return jsonify({'msg':'showing member'}),200
+        return jsonify({'msg':'showing member', "member":member}),200
     return jsonify({'error':'error showing member'}),400
 
 
